@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ASD Early Screening Assistant</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<header class="top">
+  <div class="wrap">
+    <strong class="brand">ASD Screening Assistant</strong>
+    <span class="tag">Prototype · not a diagnosis</span>
+  </div>
+  <div class="progress" aria-hidden="true"><i id="bar"></i></div>
+</header>
+
+<main class="wrap">
+
+  <!-- 1. HOME -->
+  <section id="s-home" class="step active">
+    <h1>A quick check on how your child communicates and plays</h1>
+    <p class="lead">Answer 10 short questions about everyday behaviour. It takes about 5 minutes. An AI model looks at the answers and suggests whether a specialist visit is worth planning.</p>
+    <ul class="ticks">
+      <li>No names or photos are stored in this prototype.</li>
+      <li>The result is a screening signal, not a diagnosis.</li>
+      <li>Built with data gathered together with our NGO partner.</li>
+    </ul>
+    <button class="btn" data-go="s-info">Start screening</button>
+  </section>
+
+  <!-- 2. CHILD INFO -->
+  <section id="s-info" class="step">
+    <h2>About the child</h2>
+    <form id="info-form" novalidate>
+      <label>Age in months
+        <input type="number" id="age" min="12" max="72" placeholder="e.g. 30" required>
+        <small class="hint">This screening is designed for ages 12–72 months.</small>
+        <small class="err" id="age-err"></small>
+      </label>
+      <fieldset>
+        <legend>Sex</legend>
+        <label class="chip"><input type="radio" name="sex" value="F" required><span>Girl</span></label>
+        <label class="chip"><input type="radio" name="sex" value="M"><span>Boy</span></label>
+        <label class="chip"><input type="radio" name="sex" value="O"><span>Prefer not to say</span></label>
+      </fieldset>
+      <label>Main language at home
+        <select id="lang" required>
+          <option value="">Choose…</option>
+          <option>Hindi</option><option>English</option><option>Bengali</option>
+          <option>Tamil</option><option>Marathi</option><option>Other</option>
+        </select>
+      </label>
+      <fieldset>
+        <legend>Has a family member been diagnosed with ASD?</legend>
+        <label class="chip"><input type="radio" name="family" value="1"><span>Yes</span></label>
+        <label class="chip"><input type="radio" name="family" value="0"><span>No</span></label>
+        <label class="chip"><input type="radio" name="family" value="-1"><span>Not sure</span></label>
+      </fieldset>
+      <p class="err" id="info-err"></p>
+      <div class="row">
+        <button type="button" class="btn ghost" data-go="s-home">Back</button>
+        <button type="submit" class="btn">Continue</button>
+      </div>
+    </form>
+  </section>
+
+  <!-- 3. QUESTIONS -->
+  <section id="s-quiz" class="step">
+    <p class="count" id="q-count"></p>
+    <h2 id="q-text" tabindex="-1"></h2>
+    <p class="hint" id="q-help"></p>
+    <div id="q-options" class="options" role="radiogroup" aria-labelledby="q-text"></div>
+    <div class="row">
+      <button class="btn ghost" id="q-back">Back</button>
+    </div>
+  </section>
+
+  <!-- 4. LOADING -->
+  <section id="s-load" class="step">
+    <h2>Analysing responses…</h2>
+    <div class="spinner" role="status" aria-label="Loading"></div>
+  </section>
+
+  <!-- 5. RESULT -->
+  <section id="s-result" class="step">
+    <h2>Screening result</h2>
+    <div class="result-card" id="result-card">
+      <p class="level" id="r-level"></p>
+      <p id="r-msg"></p>
+      <div class="meter" aria-hidden="true"><i id="r-meter"></i></div>
+      <p class="small" id="r-score"></p>
+    </div>
+
+    <h3>Where the answers pointed</h3>
+    <div id="r-domains" class="domains"></div>
+
+    <h3>Suggested next steps</h3>
+    <ul class="ticks" id="r-next"></ul>
+
+    <p class="notice">This tool is a prototype for screening support. It cannot diagnose autism. Only a qualified clinician can do that, after a full assessment.</p>
+    <p class="small" id="r-source"></p>
+    <div class="row noprint">
+      <button class="btn ghost" onclick="window.print()">Print result</button>
+      <button class="btn" id="restart">Screen another child</button>
+    </div>
+  </section>
+
+</main>
+<script src="js/questions.js"></script>
+<script src="js/api.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
