@@ -75,10 +75,17 @@ videoInput.onchange = () => {
   videoPreview.src = state.videoUrl;
   $("video-name").textContent = file.name + " · " + (file.size / (1024 * 1024)).toFixed(1) + " MB";
   videoPreviewWrap.hidden = false;
+  $("continue-video").disabled = false;
 };
-$("remove-video").onclick = clearVideo;
-$("skip-video").onclick = submit;
-$("continue-video").onclick = submit;
+$("remove-video").onclick = () => { clearVideo(); $("continue-video").disabled = true; };
+$("continue-video").disabled = true;
+$("continue-video").onclick = () => {
+  if (!videoInput.files || !videoInput.files[0]) {
+    alert("Please select a video before continuing.");
+    return;
+  }
+  submit();
+};
 
 // ── Submit + result ──
 async function submit() {
