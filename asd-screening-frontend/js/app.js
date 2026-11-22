@@ -1,10 +1,10 @@
 const $ = id => document.getElementById(id);
-const steps = ["s-home", "s-info", "s-quiz", "s-load", "s-result"];
-const state = { info: {}, answers: {}, i: 0 };
+const steps = ["s-home", "s-info", "s-quiz", "s-video", "s-load", "s-result"];
+const state = { info: {}, answers: {}, i: 0, videoUrl: null };
 
 function show(id) {
   steps.forEach(s => $(s).classList.toggle("active", s === id));
-  const pct = { "s-home": 0, "s-info": 10, "s-quiz": 10 + (state.i / QUESTIONS.length) * 80, "s-load": 95, "s-result": 100 }[id];
+  const pct = { "s-home": 0, "s-info": 10, "s-quiz": 10 + (state.i / QUESTIONS.length) * 70, "s-video": 85, "s-load": 95, "s-result": 100 }[id];
   $("bar").style.width = pct + "%";
   window.scrollTo({ top: 0 });
 }
@@ -38,13 +38,47 @@ function renderQ() {
     b.onclick = () => { state.answers[q.id] = v; next(); };
     $("q-options").appendChild(b);
   });
-  $("bar").style.width = 10 + (state.i / QUESTIONS.length) * 80 + "%";
+  $("bar").style.width = 10 + (state.i / QUESTIONS.length) * 70 + "%";
   $("q-text").focus();
 }
 function next() {
-  if (state.i < QUESTIONS.length - 1) { state.i++; renderQ(); } else submit();
+  if (state.i < QUESTIONS.length - 1) { state.i++; renderQ(); } else show("s-video");
 }
 $("q-back").onclick = () => state.i > 0 ? (state.i--, renderQ()) : show("s-info");
+
+
+// Optional video selection and local preview
+const videoInput = $("child-video");
+const videoPreview = $("video-preview");
+const videoPreviewWrap = $("video-preview-wrap");
+function clearVideo() {
+  if (state.videoUrl) URL.revokeObjectURL(state.videoUrl);
+  state.videoUrl = null;
+  videoInput.value = "";
+  videoPreview.removeAttribute("src");
+  videoPreview.load();
+  videoPreviewWrap.hidden = true;
+  $("video-name").textContent = "";
+}
+videoInput.onchange = () => {
+  const file = videoInput.files && videoInput.files[0];
+  if (!file) return;
+  const allowed = ["video/mp4", "video/webm", "video/quicktime"];
+  const extensionOk = /\\.(mp4|mov|webm)$/i.test(file.name);
+  if ((!allowed.includes(file.type) && !extensionOk) || file.size > 100 * 1024 * 1024) {
+    alert("Choose an MP4, MOV or WEBM video up to 100 MB.");
+    clearVideo();
+    return;
+  }
+  if (state.videoUrl) URL.revokeObjectURL(state.videoUrl);
+  state.videoUrl = URL.createObjectURL(file);
+  videoPreview.src = state.videoUrl;
+  $("video-name").textContent = file.name + " · " + (file.size / (1024 * 1024)).toFixed(1) + " MB";
+  videoPreviewWrap.hidden = false;
+};
+$("remove-video").onclick = clearVideo;
+$("skip-video").onclick = submit;
+$("continue-video").onclick = submit;
 
 // ── Submit + result ──
 async function submit() {
@@ -82,5 +116,6 @@ function renderResult(res) {
     : "Scored by the trained model.";
 }
 
-$("restart").onclick = () => { state.answers = {}; state.info = {}; $("info-form").reset(); show("s-home"); };
+$("restart").onclick = () => { clearVideo(); state.answers = {}; state.info = {}; state.i = 0; $("info-form").reset(); show("s-home"); };
+window.addEventListener("beforeunload", () => { if (state.videoUrl) URL.revokeObjectURL(state.videoUrl); });
 show("s-home");
