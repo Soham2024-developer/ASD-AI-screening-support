@@ -79,13 +79,33 @@
     </div>
   </section>
 
-  <!-- 4. LOADING -->
+  <!-- 4. OPTIONAL VIDEO UPLOAD -->
+  <section id="s-video" class="step">
+    <h2>Upload a short video (optional)</h2>
+    <p class="lead">You can choose a short video that may help a clinician understand the child’s everyday communication and play.</p>
+    <label class="upload-label" for="child-video">Choose a video
+      <input type="file" id="child-video" accept="video/mp4,video/webm,video/quicktime,.mp4,.webm,.mov">
+    </label>
+    <p class="hint">Supported formats: MP4, MOV and WEBM. Maximum file size: 100 MB.</p>
+    <div id="video-preview-wrap" class="video-preview" hidden>
+      <video id="video-preview" controls playsinline></video>
+      <p id="video-name" class="small"></p>
+      <button type="button" class="btn ghost" id="remove-video">Remove video</button>
+    </div>
+    <p class="notice">Video selection is currently for local preview only. This frontend does not upload or analyse the video.</p>
+    <div class="row">
+      <button type="button" class="btn ghost" id="skip-video">Skip video</button>
+      <button type="button" class="btn" id="continue-video">Continue</button>
+    </div>
+  </section>
+
+  <!-- 5. LOADING -->
   <section id="s-load" class="step">
     <h2>Analysing responses…</h2>
     <div class="spinner" role="status" aria-label="Loading"></div>
   </section>
 
-  <!-- 5. RESULT -->
+  <!-- 6. RESULT -->
   <section id="s-result" class="step">
     <h2>Screening result</h2>
     <div class="result-card" id="result-card">
