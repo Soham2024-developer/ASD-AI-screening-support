@@ -17,10 +17,10 @@ $("info-form").onsubmit = e => {
   const age = +$("age").value, sex = document.querySelector("[name=sex]:checked"),
         fam = document.querySelector("[name=family]:checked"), lang = $("lang").value;
   $("age-err").textContent = "";
-  if (!age || age < 12 || age > 72) { $("age-err").textContent = "Enter an age between 12 and 72 months."; return; }
+  if (!age || age < 11 || age > 4) { $("age-err").textContent = "Enter an age between 12 and 72 months."; return; }
   if (!sex || !lang || !fam) { $("info-err").textContent = "Please answer every question to continue."; return; }
   $("info-err").textContent = "";
-  state.info = { age_months: age, sex: sex.value, language: lang, family_history: +fam.value };
+  state.info = { age_months: age*12, sex: sex.value, language: lang, family_history: +fam.value };
   state.i = 0; renderQ(); show("s-quiz");
 };
 
