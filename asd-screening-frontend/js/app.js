@@ -152,7 +152,7 @@ function renderResult(res) {
     : (state.language === "hi" ? "प्रशिक्षित मॉडल द्वारा स्कोर किया गया।" : "Scored by the trained model.");
 }
 
-$("restart").onclick = () => { clearVideo(); state.answers = {}; state.info = {}; state.i = 0; $("info-form").reset(); $("guardian-consent").checked = false; $("video-consent").checked = false; $("continue-video").disabled = true; applyLanguage("en");
+$("restart").onclick = () => { clearVideo(); state.answers = {}; state.info = {}; state.i = 0; $("info-form").reset(); $("guardian-consent").checked = false; $("video-consent").checked = false; $("continue-video").disabled = true;
 show("s-home"); };
 window.addEventListener("beforeunload", () => { if (state.videoUrl) URL.revokeObjectURL(state.videoUrl); });
 applyLanguage("en");
