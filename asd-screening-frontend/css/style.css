@@ -80,3 +80,11 @@ legend{font-weight:700;margin-bottom:8px}
 .video-preview{margin-top:18px;padding:14px;border:1px solid var(--line);border-radius:var(--r);background:var(--card)}
 .video-preview video{display:block;width:100%;max-height:360px;border-radius:6px;background:#000}
 .video-preview[hidden]{display:none}
+
+/* Consent and validation states */
+.consent-check{display:flex;align-items:flex-start;gap:12px;padding:16px;border:1px solid var(--line);border-radius:var(--r);background:var(--card);font-weight:400;line-height:1.5}
+.consent-check input{flex:0 0 auto;width:20px;height:20px;margin:3px 0 0;accent-color:var(--primary)}
+.video-consent{margin-top:22px}
+.btn:disabled{opacity:.55;cursor:not-allowed}
+.btn:disabled:hover{background:var(--primary);border-color:var(--primary)}
+input[type=text]{display:block;width:100%;margin-top:6px;font:inherit;padding:11px 12px;border:2px solid var(--line);border-radius:var(--r);background:var(--card);color:var(--ink)}
