@@ -1,6 +1,6 @@
 const $ = id => document.getElementById(id);
 const steps = ["s-home", "s-consent", "s-info", "s-quiz", "s-video", "s-load", "s-result"];
-const state = { info: {}, answers: {}, i: 0, videoUrl: null };
+const state = { info: {}, answers: {}, i: 0, videoUrl: null, language: "en" };
 
 function show(id) {
   steps.forEach(s => $(s).classList.toggle("active", s === id));
@@ -44,11 +44,11 @@ $("info-form").onsubmit = e => {
 // ── Questions ──
 function renderQ() {
   const q = QUESTIONS[state.i];
-  $("q-count").textContent = `Question ${state.i + 1} of ${QUESTIONS.length}`;
-  $("q-text").textContent = q.text;
-  $("q-help").textContent = q.help || "";
+  $("q-count").textContent = state.language === "hi" ? `प्रश्न ${state.i + 1} / ${QUESTIONS.length}` : `Question ${state.i + 1} of ${QUESTIONS.length}`;
+  $("q-text").textContent = localizedQuestion(q.id, q.text);
+  $("q-help").textContent = localizedQuestionHelp(q.id, q.help || "");
   $("q-options").innerHTML = "";
-  OPTIONS.forEach((label, v) => {
+  (state.language === "hi" ? ["कभी नहीं", "शायद ही कभी", "कभी-कभी", "अक्सर", "हमेशा"] : OPTIONS).forEach((label, v) => {
     const b = document.createElement("button");
     b.className = "opt" + (state.answers[q.id] === v ? " sel" : "");
     b.textContent = label; b.setAttribute("role", "radio");
@@ -132,8 +132,8 @@ function level(p) {
 function renderResult(res) {
   const L = level(res.probability), pct = Math.round(res.probability * 100);
   $("result-card").className = "result-card " + L.c;
-  $("r-level").textContent = L.t; $("r-msg").textContent = L.m;
-  $("r-score").textContent = `Screening score: ${pct} / 100`;
+  $("r-level").textContent = state.language === "hi" ? (res.probability < 0.35 ? "कम संकेत" : res.probability < 0.6 ? "कुछ संकेत दिखाई दिए" : "कई संकेत दिखाई दिए") : L.t; $("r-msg").textContent = state.language === "hi" ? "कुछ उत्तर संचार या व्यवहार में अंतर की ओर संकेत करते हैं। बाल रोग विशेषज्ञ या बाल-विकास विशेषज्ञ से बात करना उचित होगा।" : L.m;
+  $("r-score").textContent = state.language === "hi" ? `स्क्रीनिंग स्कोर: ${pct} / 100` : `Screening score: ${pct} / 100`;
   $("r-meter").style.width = "0";
   requestAnimationFrame(() => requestAnimationFrame(() => $("r-meter").style.width = pct + "%"));
 
@@ -152,6 +152,30 @@ function renderResult(res) {
     : "Scored by the trained model.";
 }
 
-$("restart").onclick = () => { clearVideo(); state.answers = {}; state.info = {}; state.i = 0; $("info-form").reset(); $("guardian-consent").checked = false; $("video-consent").checked = false; $("continue-video").disabled = true; show("s-home"); };
+$("restart").onclick = () => { clearVideo(); state.answers = {}; state.info = {}; state.i = 0; $("info-form").reset(); $("guardian-consent").checked = false; $("video-consent").checked = false; $("continue-video").disabled = true; applyLanguage("en");
+show("s-home"); };
 window.addEventListener("beforeunload", () => { if (state.videoUrl) URL.revokeObjectURL(state.videoUrl); });
 show("s-home");
+
+function localizedQuestion(id, fallback) { return state.language === "hi" && window.HI_QUESTIONS[id] ? window.HI_QUESTIONS[id].text : fallback; }
+function localizedQuestionHelp(id, fallback) { return state.language === "hi" && window.HI_QUESTIONS[id] ? (window.HI_QUESTIONS[id].help || "") : fallback; }
+function applyLanguage(lang) {
+  state.language = lang; document.documentElement.lang = lang;
+  const hi = lang === "hi";
+  const map = {
+    "s-home h1": ["A quick check on how your child communicates and plays", "आपका बच्चा कैसे बातचीत करता है और खेलता है — एक संक्षिप्त जाँच"],
+    "#s-home .lead": ["Answer 10 short questions about everyday behaviour. It takes about 5 minutes. This prototype provides screening support and does not diagnose autism.", "रोज़मर्रा के व्यवहार के बारे में 10 छोटे सवालों के जवाब दें। इसमें लगभग 5 मिनट लगेंगे। यह प्रोटोटाइप स्क्रीनिंग में सहायता करता है, ऑटिज़्म का निदान नहीं करता।"],
+    "#s-consent h2": ["Parent or guardian consent", "माता-पिता या अभिभावक की सहमति"],
+    "#s-consent .lead": ["Please read this information before continuing.", "आगे बढ़ने से पहले कृपया यह जानकारी पढ़ें।"],
+    "#s-info h2": ["About the child", "बच्चे के बारे में"],
+    "#s-video h2": ["Upload a short video", "एक छोटा वीडियो चुनें"],
+    "#continue-consent": ["I agree and continue", "मैं सहमत हूँ और आगे बढ़ना चाहता/चाहती हूँ"],
+    "#continue-video": ["Continue", "आगे बढ़ें"],
+    "#q-back": ["Back", "वापस"],
+    "#restart": ["Screen another child", "दूसरे बच्चे की स्क्रीनिंग करें"]
+  };
+  Object.keys(map).forEach(sel => { const el=document.querySelector(sel); if(el) el.textContent=map[sel][hi?1:0]; });
+  if (state.i < QUESTIONS.length && $("s-quiz").classList.contains("active")) renderQ();
+}
+const languageSelect = $("ui-language");
+if (languageSelect) languageSelect.addEventListener("change", () => applyLanguage(languageSelect.value));
