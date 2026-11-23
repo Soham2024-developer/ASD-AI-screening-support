@@ -1,26 +1,43 @@
 const $ = id => document.getElementById(id);
-const steps = ["s-home", "s-info", "s-quiz", "s-video", "s-load", "s-result"];
+const steps = ["s-home", "s-consent", "s-info", "s-quiz", "s-video", "s-load", "s-result"];
 const state = { info: {}, answers: {}, i: 0, videoUrl: null };
 
 function show(id) {
   steps.forEach(s => $(s).classList.toggle("active", s === id));
-  const pct = { "s-home": 0, "s-info": 10, "s-quiz": 10 + (state.i / QUESTIONS.length) * 70, "s-video": 85, "s-load": 95, "s-result": 100 }[id];
+  const pct = { "s-home": 0, "s-consent": 5, "s-info": 10, "s-quiz": 10 + (state.i / QUESTIONS.length) * 70, "s-video": 85, "s-load": 95, "s-result": 100 }[id];
   $("bar").style.width = pct + "%";
   window.scrollTo({ top: 0 });
 }
 
 document.querySelectorAll("[data-go]").forEach(b => b.onclick = () => show(b.dataset.go));
 
+$("continue-consent").onclick = () => {
+  if (!$("guardian-consent").checked) {
+    $("consent-err").textContent = "Parent or guardian consent is required to continue.";
+    return;
+  }
+  $("consent-err").textContent = "";
+  show("s-info");
+};
+
 // ── Child info ──
 $("info-form").onsubmit = e => {
   e.preventDefault();
-  const age = +$("age").value, sex = document.querySelector("[name=sex]:checked"),
+  const age = Number($("age").value), participantId = $("participant-id").value.trim(),
+        sex = document.querySelector("[name=sex]:checked"),
         fam = document.querySelector("[name=family]:checked"), lang = $("lang").value;
   $("age-err").textContent = "";
-  if (!age || age < 11 || age > 4) { $("age-err").textContent = "Enter an age between 4 and 11 years."; return; }
-  if (!sex || !lang || !fam) { $("info-err").textContent = "Please answer every question to continue."; return; }
   $("info-err").textContent = "";
-  state.info = { age_months: age*12, sex: sex.value, language: lang, family_history: +fam.value };
+  if (!Number.isInteger(age) || age < 4 || age > 11) {
+    $("age-err").textContent = "Enter a whole-number age from 4 to 11 years.";
+    return;
+  }
+  if (!/^[A-Za-z0-9_-]{3,32}$/.test(participantId)) {
+    $("info-err").textContent = "Enter a valid coded participant ID (3-32 letters, numbers, hyphens or underscores). Do not use the child's name.";
+    return;
+  }
+  if (!sex || !lang || !fam) { $("info-err").textContent = "Please answer every question to continue."; return; }
+  state.info = { participant_id: participantId, age_months: age * 12, sex: sex.value, language: lang, family_history: Number(fam.value) };
   state.i = 0; renderQ(); show("s-quiz");
 };
 
@@ -47,7 +64,7 @@ function next() {
 $("q-back").onclick = () => state.i > 0 ? (state.i--, renderQ()) : show("s-info");
 
 
-// Optional video selection and local preview
+// Required video selection and local preview (server upload is not implemented in this frontend).
 const videoInput = $("child-video");
 const videoPreview = $("video-preview");
 const videoPreviewWrap = $("video-preview-wrap");
@@ -65,23 +82,35 @@ videoInput.onchange = () => {
   if (!file) return;
   const allowed = ["video/mp4", "video/webm", "video/quicktime"];
   const extensionOk = /\\.(mp4|mov|webm)$/i.test(file.name);
-  if ((!allowed.includes(file.type) && !extensionOk) || file.size > 100 * 1024 * 1024) {
-    alert("Choose an MP4, MOV or WEBM video up to 100 MB.");
+  if ((!allowed.includes(file.type) && !extensionOk) || file.size > 100 * 1024 * 1024 || file.size === 0) {
+    $("video-err").textContent = "Choose a non-empty MP4, MOV or WEBM video up to 100 MB.";
     clearVideo();
+    $("continue-video").disabled = true;
     return;
   }
+  $("video-err").textContent = "";
   if (state.videoUrl) URL.revokeObjectURL(state.videoUrl);
   state.videoUrl = URL.createObjectURL(file);
   videoPreview.src = state.videoUrl;
   $("video-name").textContent = file.name + " · " + (file.size / (1024 * 1024)).toFixed(1) + " MB";
   videoPreviewWrap.hidden = false;
-  $("continue-video").disabled = false;
+  $("continue-video").disabled = !($("video-consent").checked);
 };
-$("remove-video").onclick = () => { clearVideo(); $("continue-video").disabled = true; };
+$("remove-video").onclick = () => {
+  clearVideo();
+  $("continue-video").disabled = true;
+};
 $("continue-video").disabled = true;
+$("video-consent").onchange = () => {
+  $("continue-video").disabled = !(videoInput.files && videoInput.files[0] && $("video-consent").checked);
+};
 $("continue-video").onclick = () => {
   if (!videoInput.files || !videoInput.files[0]) {
-    alert("Please select a video before continuing.");
+    $("video-err").textContent = "Please select a video before continuing.";
+    return;
+  }
+  if (!$("video-consent").checked) {
+    $("video-err").textContent = "Please confirm guardian permission for this video.";
     return;
   }
   submit();
@@ -123,6 +152,6 @@ function renderResult(res) {
     : "Scored by the trained model.";
 }
 
-$("restart").onclick = () => { clearVideo(); state.answers = {}; state.info = {}; state.i = 0; $("info-form").reset(); show("s-home"); };
+$("restart").onclick = () => { clearVideo(); state.answers = {}; state.info = {}; state.i = 0; $("info-form").reset(); $("guardian-consent").checked = false; $("video-consent").checked = false; $("continue-video").disabled = true; show("s-home"); };
 window.addEventListener("beforeunload", () => { if (state.videoUrl) URL.revokeObjectURL(state.videoUrl); });
 show("s-home");
