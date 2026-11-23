@@ -33,7 +33,7 @@ $("info-form").onsubmit = e => {
     return;
   }
   if (!/^[A-Za-z0-9_-]{3,32}$/.test(participantId)) {
-    $("info-err").textContent = "Enter a valid coded participant ID (3-32 letters, numbers, hyphens or underscores). Do not use the child's name.";
+    $("info-err").textContent = state.language === "hi" ? "मान्य प्रतिभागी कोड दर्ज करें (3-32 अंग्रेज़ी अक्षर, अंक, हाइफ़न या अंडरस्कोर)। बच्चे का नाम न लिखें।" : "Enter a valid coded participant ID (3-32 letters, numbers, hyphens or underscores). Do not use the child's name.";
     return;
   }
   if (!sex || !lang || !fam) { $("info-err").textContent = (state.language === "hi" ? "आगे बढ़ने के लिए कृपया सभी प्रश्नों के उत्तर दें।" : "Please answer every question to continue."); return; }
