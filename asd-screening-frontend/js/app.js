@@ -81,7 +81,7 @@ videoInput.onchange = () => {
   const file = videoInput.files && videoInput.files[0];
   if (!file) return;
   const allowed = ["video/mp4", "video/webm", "video/quicktime"];
-  const extensionOk = /\\.(mp4|mov|webm)$/i.test(file.name);
+  const extensionOk = /\.(mp4|mov|webm)$/i.test(file.name);
   if ((!allowed.includes(file.type) && !extensionOk) || file.size > 100 * 1024 * 1024 || file.size === 0) {
     $("video-err").textContent = "Choose a non-empty MP4, MOV or WEBM video up to 100 MB.";
     clearVideo();
