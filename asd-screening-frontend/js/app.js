@@ -137,7 +137,8 @@ function renderResult(res) {
   $("r-meter").style.width = "0";
   requestAnimationFrame(() => requestAnimationFrame(() => $("r-meter").style.width = pct + "%"));
 
-  const domainNames = state.language === "hi" ? {Social:"सामाजिक व्यवहार",Communication:"संचार",Behaviour:"व्यवहार"} : {};\n  $("r-domains").innerHTML = Object.entries(res.domain_scores).map(([d, v]) => `
+  const domainNames = state.language === "hi" ? {Social:"सामाजिक व्यवहार",Communication:"संचार",Behaviour:"व्यवहार"} : {};
+  $("r-domains").innerHTML = Object.entries(res.domain_scores).map(([d, v]) => `
     <div class="dom"><div class="dom-head"><span>${domainNames[d] || d}</span><span>${Math.round(v * 100)}%</span></div>
     <div class="meter"><i style="width:${Math.round(v * 100)}%"></i></div></div>`).join("");
 
@@ -147,8 +148,8 @@ function renderResult(res) {
   $("r-next").innerHTML = next.map(s => `<li>${s}</li>`).join("");
 
   $("r-source").textContent = res.source === "demo"
-    ? "Demo mode: scores come from a simple placeholder formula, not the trained model."
-    : "Scored by the trained model.";
+    ? (state.language === "hi" ? "डेमो मोड: यह स्कोर एक अस्थायी फ़ॉर्मूले से निकला है, प्रशिक्षित AI मॉडल से नहीं।" : "Demo mode: scores come from a simple placeholder formula, not the trained model.")
+    : (state.language === "hi" ? "प्रशिक्षित मॉडल द्वारा स्कोर किया गया।" : "Scored by the trained model.");
 }
 
 $("restart").onclick = () => { clearVideo(); state.answers = {}; state.info = {}; state.i = 0; $("info-form").reset(); $("guardian-consent").checked = false; $("video-consent").checked = false; $("continue-video").disabled = true; applyLanguage("en");
