@@ -23,22 +23,48 @@
   <!-- 1. HOME -->
   <section id="s-home" class="step active">
     <h1>A quick check on how your child communicates and plays</h1>
-    <p class="lead">Answer 10 short questions about everyday behaviour. It takes about 5 minutes. An AI model looks at the answers and suggests whether a specialist visit is worth planning.</p>
+    <p class="lead">Answer 10 short questions about everyday behaviour. It takes about 5 minutes. This prototype provides screening support and does not diagnose autism.</p>
     <ul class="ticks">
       <li>No names or photos are stored in this prototype.</li>
       <li>The result is a screening signal, not a diagnosis.</li>
       <li>Built with data gathered together with our NGO partner.</li>
     </ul>
-    <button class="btn" data-go="s-info">Start screening</button>
+    <button class="btn" data-go="s-consent">Start screening</button>
   </section>
 
-  <!-- 2. CHILD INFO -->
+  <!-- 2. GUARDIAN CONSENT -->
+  <section id="s-consent" class="step">
+    <h2>Parent or guardian consent</h2>
+    <p class="lead">Please read this information before continuing.</p>
+    <ul class="ticks">
+      <li>This is a student screening-support prototype, not a diagnostic tool.</li>
+      <li>Participation is voluntary. You may stop at any time.</li>
+      <li>Do not enter the child's name or other directly identifying details.</li>
+      <li>Video selection in this version is for local preview only; the video is not uploaded or analysed.</li>
+      <li>For real-world use, the project team must provide an approved privacy notice and secure data-handling process.</li>
+    </ul>
+    <label class="consent-check">
+      <input type="checkbox" id="guardian-consent">
+      I am the child's parent or legal guardian, I have read the information above, and I agree to continue with this prototype.
+    </label>
+    <p class="err" id="consent-err" role="alert"></p>
+    <div class="row">
+      <button type="button" class="btn ghost" data-go="s-home">Back</button>
+      <button type="button" class="btn" id="continue-consent">I agree and continue</button>
+    </div>
+  </section>
+
+  <!-- 3. CHILD INFO -->
   <section id="s-info" class="step">
     <h2>About the child</h2>
     <form id="info-form" novalidate>
-      <label>Age in months
-        <input type="number" id="age" min="4" max="11" placeholder="e.g. 10" required>
-        <small class="hint">This screening is designed for ages 4-11 years.</small>
+      <label>Participant ID (use a code, not the child's name)
+        <input type="text" id="participant-id" maxlength="32" pattern="[A-Za-z0-9_-]{3,32}" placeholder="e.g. NGO-CH-001" required>
+        <small class="hint">Use the coded ID assigned by your project/NGO team. Do not enter a name.</small>
+      </label>
+      <label>Age in completed years
+        <input type="number" id="age" min="4" max="11" step="1" inputmode="numeric" placeholder="e.g. 6" required>
+        <small class="hint">This screening is only for children aged 4 to 11 years, inclusive.</small>
         <small class="err" id="age-err"></small>
       </label>
       <fieldset>
@@ -56,7 +82,7 @@
       </label>
       <fieldset>
         <legend>Has a family member been diagnosed with ASD?</legend>
-        <label class="chip"><input type="radio" name="family" value="1"><span>Yes</span></label>
+        <label class="chip"><input type="radio" name="family" value="1" required><span>Yes</span></label>
         <label class="chip"><input type="radio" name="family" value="0"><span>No</span></label>
         <label class="chip"><input type="radio" name="family" value="-1"><span>Not sure</span></label>
       </fieldset>
@@ -68,7 +94,7 @@
     </form>
   </section>
 
-  <!-- 3. QUESTIONS -->
+  <!-- 4. QUESTIONS -->
   <section id="s-quiz" class="step">
     <p class="count" id="q-count"></p>
     <h2 id="q-text" tabindex="-1"></h2>
@@ -79,10 +105,10 @@
     </div>
   </section>
 
-  <!-- 4. OPTIONAL VIDEO UPLOAD -->
+  <!-- 5. REQUIRED VIDEO SELECTION -->
   <section id="s-video" class="step">
     <h2>Upload a short video</h2>
-    <p class="lead">You can choose a short video that may help a clinician understand the child’s everyday communication and play.</p>
+    <p class="lead">Select the required video for this screening. Only select a video when you have the appropriate guardian permission.</p>
     <label class="upload-label" for="child-video">Choose a video
       <input type="file" id="child-video" accept="video/mp4,video/webm,video/quicktime,.mp4,.webm,.mov">
     </label>
@@ -92,19 +118,24 @@
       <p id="video-name" class="small"></p>
       <button type="button" class="btn ghost" id="remove-video">Remove video</button>
     </div>
-    <p class="notice">A video is required to continue. Video selection is currently for local preview only. This frontend does not upload or analyse the video.</p>
+    <label class="consent-check video-consent">
+      <input type="checkbox" id="video-consent">
+      I confirm that I have permission as the child's parent or legal guardian to use this video for this screening activity.
+    </label>
+    <p class="err" id="video-err" role="alert"></p>
+    <p class="notice">A video selection and the confirmation above are required to continue. Important: this version only previews the selected file in your browser. It does not upload, store on a server, or analyse the video.</p>
     <div class="row">
-      <button type="button" class="btn" id="continue-video">Continue</button>
+      <button type="button" class="btn" id="continue-video" disabled>Continue</button>
     </div>
   </section>
 
-  <!-- 5. LOADING -->
+  <!-- 6. LOADING -->
   <section id="s-load" class="step">
     <h2>Analysing responses…</h2>
     <div class="spinner" role="status" aria-label="Loading"></div>
   </section>
 
-  <!-- 6. RESULT -->
+  <!-- 7. RESULT -->
   <section id="s-result" class="step">
     <h2>Screening result</h2>
     <div class="result-card" id="result-card">
