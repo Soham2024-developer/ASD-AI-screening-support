@@ -155,27 +155,75 @@ function renderResult(res) {
 $("restart").onclick = () => { clearVideo(); state.answers = {}; state.info = {}; state.i = 0; $("info-form").reset(); $("guardian-consent").checked = false; $("video-consent").checked = false; $("continue-video").disabled = true; applyLanguage("en");
 show("s-home"); };
 window.addEventListener("beforeunload", () => { if (state.videoUrl) URL.revokeObjectURL(state.videoUrl); });
+applyLanguage("en");
 show("s-home");
 
 function localizedQuestion(id, fallback) { return state.language === "hi" && window.HI_QUESTIONS[id] ? window.HI_QUESTIONS[id].text : fallback; }
 function localizedQuestionHelp(id, fallback) { return state.language === "hi" && window.HI_QUESTIONS[id] ? (window.HI_QUESTIONS[id].help || "") : fallback; }
 function applyLanguage(lang) {
-  state.language = lang; document.documentElement.lang = lang;
+  state.language = lang;
   const hi = lang === "hi";
-  const map = {
-    "s-home h1": ["A quick check on how your child communicates and plays", "आपका बच्चा कैसे बातचीत करता है और खेलता है — एक संक्षिप्त जाँच"],
-    "#s-home .lead": ["Answer 10 short questions about everyday behaviour. It takes about 5 minutes. This prototype provides screening support and does not diagnose autism.", "रोज़मर्रा के व्यवहार के बारे में 10 छोटे सवालों के जवाब दें। इसमें लगभग 5 मिनट लगेंगे। यह प्रोटोटाइप स्क्रीनिंग में सहायता करता है, ऑटिज़्म का निदान नहीं करता।"],
-    "#s-consent h2": ["Parent or guardian consent", "माता-पिता या अभिभावक की सहमति"],
-    "#s-consent .lead": ["Please read this information before continuing.", "आगे बढ़ने से पहले कृपया यह जानकारी पढ़ें।"],
-    "#s-info h2": ["About the child", "बच्चे के बारे में"],
-    "#s-video h2": ["Upload a short video", "एक छोटा वीडियो चुनें"],
-    "#continue-consent": ["I agree and continue", "मैं सहमत हूँ और आगे बढ़ना चाहता/चाहती हूँ"],
-    "#continue-video": ["Continue", "आगे बढ़ें"],
-    "#q-back": ["Back", "वापस"],
-    "#restart": ["Screen another child", "दूसरे बच्चे की स्क्रीनिंग करें"]
+  document.documentElement.lang = hi ? "hi" : "en";
+  const set = (selector, en, hindi) => { const el=document.querySelector(selector); if(el) el.textContent=hi?hindi:en; };
+  const label = (selector, en, hindi) => {
+    const el=document.querySelector(selector);
+    if(!el) return;
+    const node=[...el.childNodes].find(n=>n.nodeType===Node.TEXT_NODE && n.nodeValue.trim());
+    if(node) node.nodeValue=(hi?hindi:en)+" ";
   };
-  Object.keys(map).forEach(sel => { const el=document.querySelector(sel); if(el) el.textContent=map[sel][hi?1:0]; });
-  if (state.i < QUESTIONS.length && $("s-quiz").classList.contains("active")) renderQ();
+  set(".brand","ASD Screening Assistant","ASD स्क्रीनिंग सहायक");
+  set(".tag","Prototype · not a diagnosis","प्रोटोटाइप · निदान नहीं");
+  set(".language-picker","Choose your language / अपनी भाषा चुनें","अपनी भाषा चुनें");
+  set("#s-home h1","A quick check on how your child communicates and plays","आपका बच्चा कैसे बातचीत करता है और खेलता है — एक संक्षिप्त जाँच");
+  set("#s-home .lead","Answer 10 short questions about everyday behaviour. It takes about 5 minutes. This prototype provides screening support and does not diagnose autism.","रोज़मर्रा के व्यवहार के बारे में 10 छोटे सवालों के जवाब दें। इसमें लगभग 5 मिनट लगेंगे। यह प्रोटोटाइप स्क्रीनिंग में सहायता करता है, ऑटिज़्म का निदान नहीं करता।");
+  const homeEn=["No names or photos are stored in this prototype.","The result is a screening signal, not a diagnosis.","Built with data gathered together with our NGO partner."];
+  const homeHi=["इस प्रोटोटाइप में नाम या तस्वीरें संग्रहीत नहीं की जाती हैं।","परिणाम केवल स्क्रीनिंग संकेत है, निदान नहीं।","यह परियोजना हमारे NGO सहयोगी के साथ एकत्र किए गए डेटा पर आधारित है।"];
+  document.querySelectorAll("#s-home .ticks li").forEach((e,i)=>e.textContent=hi?homeHi[i]:homeEn[i]);
+  set("#s-home [data-go]","Start screening","स्क्रीनिंग शुरू करें");
+  set("#s-consent h2","Parent or guardian consent","माता-पिता या अभिभावक की सहमति");
+  set("#s-consent .lead","Please read this information before continuing.","आगे बढ़ने से पहले कृपया यह जानकारी पढ़ें।");
+  const cEn=["This is a student screening-support prototype, not a diagnostic tool.","Participation is voluntary. You may stop at any time.","Do not enter the child's name or other directly identifying details.","Video selection in this version is for local preview only; the video is not uploaded or analysed.","For real-world use, the project team must provide an approved privacy notice and secure data-handling process."];
+  const cHi=["यह विद्यार्थियों द्वारा बनाया गया स्क्रीनिंग-सहायता प्रोटोटाइप है, निदान का उपकरण नहीं।","भागीदारी स्वैच्छिक है। आप किसी भी समय रुक सकते हैं।","बच्चे का नाम या पहचान बताने वाली अन्य जानकारी न भरें।","इस संस्करण में वीडियो केवल आपके ब्राउज़र में देखा जाता है; इसे अपलोड या विश्लेषित नहीं किया जाता।","वास्तविक उपयोग के लिए स्वीकृत गोपनीयता सूचना और सुरक्षित डेटा-प्रबंधन प्रक्रिया आवश्यक है।"];
+  document.querySelectorAll("#s-consent .ticks li").forEach((e,i)=>e.textContent=hi?cHi[i]:cEn[i]);
+  const gc=document.querySelector("#s-consent .consent-check");
+  if(gc) gc.lastChild.textContent=hi?" मैं बच्चे का माता-पिता या कानूनी अभिभावक हूँ, मैंने ऊपर दी गई जानकारी पढ़ ली है और इस प्रोटोटाइप को जारी रखने की सहमति देता/देती हूँ।":" I am the child's parent or legal guardian, I have read the information above, and I agree to continue with this prototype.";
+  set("#continue-consent","I agree and continue","मैं सहमत हूँ और आगे बढ़ें");
+  set("#s-consent [data-go]","Back","वापस");
+  set("#s-info h2","About the child","बच्चे के बारे में");
+  label("#info-form > label:nth-of-type(1)","Participant ID (use a code, not the child's name)","प्रतिभागी ID (बच्चे का नाम नहीं, एक कोड लिखें)");
+  label("#info-form > label:nth-of-type(2)","Age in completed years","पूरे किए गए वर्षों में आयु");
+  set("#participant-id + .hint","Use the coded ID assigned by your project/NGO team. Do not enter a name.","अपनी परियोजना/NGO टीम द्वारा दिया गया कोड इस्तेमाल करें। नाम न लिखें।");
+  set("#age + .hint","This screening is only for children aged 4 to 11 years, inclusive.","यह स्क्रीनिंग केवल 4 से 11 वर्ष की आयु के बच्चों के लिए है।");
+  set("#info-form fieldset:nth-of-type(1) legend","Sex","लिंग");
+  const sexEn=["Girl","Boy","Prefer not to say"], sexHi=["लड़की","लड़का","बताना नहीं चाहते"];
+  document.querySelectorAll("#info-form fieldset:nth-of-type(1) .chip span").forEach((e,i)=>e.textContent=hi?sexHi[i]:sexEn[i]);
+  label("#info-form > label:nth-of-type(3)","Main language at home","घर में मुख्य भाषा");
+  const langEn=["Choose…","Hindi","English","Bengali","Tamil","Marathi","Other"], langHi=["चुनें…","हिन्दी","अंग्रेज़ी","बंगाली","तमिल","मराठी","अन्य"];
+  document.querySelectorAll("#lang option").forEach((e,i)=>{if(langEn[i])e.textContent=hi?langHi[i]:langEn[i];});
+  set("#info-form fieldset:nth-of-type(2) legend","Has a family member been diagnosed with ASD?","क्या परिवार के किसी सदस्य को ASD का निदान हुआ है?");
+  const ynEn=["Yes","No","Not sure"], ynHi=["हाँ","नहीं","पता नहीं"];
+  document.querySelectorAll("#info-form fieldset:nth-of-type(2) .chip span").forEach((e,i)=>e.textContent=hi?ynHi[i]:ynEn[i]);
+  set("#info-form [data-go]","Back","वापस");
+  set("#info-form button[type=submit]","Continue","आगे बढ़ें");
+  set("#s-video h2","Upload a short video","एक छोटा वीडियो चुनें");
+  set("#s-video .lead","Select the required video for this screening. Only select a video when you have the appropriate guardian permission.","इस स्क्रीनिंग के लिए आवश्यक वीडियो चुनें। वीडियो तभी चुनें जब आपके पास अभिभावक की उचित अनुमति हो।");
+  label("#s-video .upload-label","Choose a video","वीडियो चुनें");
+  set("#s-video > .hint","Supported formats: MP4, MOV and WEBM. Maximum file size: 100 MB.","मान्य फ़ॉर्मेट: MP4, MOV और WEBM। अधिकतम फ़ाइल आकार: 100 MB।");
+  set("#remove-video","Remove video","वीडियो हटाएँ");
+  const vc=document.querySelector("#s-video .video-consent");
+  if(vc) vc.lastChild.textContent=hi?" मैं पुष्टि करता/करती हूँ कि इस स्क्रीनिंग गतिविधि के लिए मुझे बच्चे के अभिभावक के रूप में इस वीडियो का उपयोग करने की अनुमति है।":" I confirm that I have permission as the child's parent or legal guardian to use this video for this screening activity.";
+  set("#s-video .notice","A video selection and the confirmation above are required to continue. Important: this version only previews the selected file in your browser. It does not upload, store on a server, or analyse the video.","आगे बढ़ने के लिए वीडियो चुनना और ऊपर दी गई पुष्टि करना आवश्यक है। महत्वपूर्ण: इस संस्करण में वीडियो केवल आपके ब्राउज़र में दिखाया जाता है। इसे सर्वर पर अपलोड, संग्रहीत या विश्लेषित नहीं किया जाता।");
+  set("#continue-video","Continue","आगे बढ़ें");
+  set("#s-load h2","Analysing responses…","आपके जवाबों का विश्लेषण किया जा रहा है…");
+  set("#s-result h2","Screening result","स्क्रीनिंग परिणाम");
+  const headings=document.querySelectorAll("#s-result h3");
+  if(headings[0]) headings[0].textContent=hi?"उत्तर किन क्षेत्रों की ओर संकेत करते हैं":"Where the answers pointed";
+  if(headings[1]) headings[1].textContent=hi?"अगले सुझाए गए कदम":"Suggested next steps";
+  set("#s-result .notice","This tool is a prototype for screening support. It cannot diagnose autism. Only a qualified clinician can do that, after a full assessment.","यह उपकरण स्क्रीनिंग सहायता के लिए एक प्रोटोटाइप है। यह ऑटिज़्म का निदान नहीं कर सकता। पूर्ण मूल्यांकन के बाद केवल योग्य चिकित्सक ही निदान कर सकते हैं।");
+  set("#restart","Screen another child","दूसरे बच्चे की स्क्रीनिंग करें");
+  const printButton=document.querySelector('#s-result button[onclick="window.print()"]');
+  if(printButton) printButton.textContent=hi?"परिणाम प्रिंट करें":"Print result";
+  if(state.i<QUESTIONS.length && $("s-quiz").classList.contains("active")) renderQ();
 }
 const languageSelect = $("ui-language");
 if (languageSelect) languageSelect.addEventListener("change", () => applyLanguage(languageSelect.value));
