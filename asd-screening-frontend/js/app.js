@@ -13,7 +13,7 @@ document.querySelectorAll("[data-go]").forEach(b => b.onclick = () => show(b.dat
 
 $("continue-consent").onclick = () => {
   if (!$("guardian-consent").checked) {
-    $("consent-err").textContent = "Parent or guardian consent is required to continue.";
+    $("consent-err").textContent = (state.language === "hi" ? "आगे बढ़ने के लिए माता-पिता या अभिभावक की सहमति आवश्यक है।" : "Parent or guardian consent is required to continue.");
     return;
   }
   $("consent-err").textContent = "";
@@ -29,14 +29,14 @@ $("info-form").onsubmit = e => {
   $("age-err").textContent = "";
   $("info-err").textContent = "";
   if (!Number.isInteger(age) || age < 4 || age > 11) {
-    $("age-err").textContent = "Enter a whole-number age from 4 to 11 years.";
+    $("age-err").textContent = (state.language === "hi" ? "4 से 11 वर्ष के बीच पूरी संख्या में आयु दर्ज करें।" : "Enter a whole-number age from 4 to 11 years.");
     return;
   }
   if (!/^[A-Za-z0-9_-]{3,32}$/.test(participantId)) {
     $("info-err").textContent = "Enter a valid coded participant ID (3-32 letters, numbers, hyphens or underscores). Do not use the child's name.";
     return;
   }
-  if (!sex || !lang || !fam) { $("info-err").textContent = "Please answer every question to continue."; return; }
+  if (!sex || !lang || !fam) { $("info-err").textContent = (state.language === "hi" ? "आगे बढ़ने के लिए कृपया सभी प्रश्नों के उत्तर दें।" : "Please answer every question to continue."); return; }
   state.info = { participant_id: participantId, age_months: age * 12, sex: sex.value, language: lang, family_history: Number(fam.value) };
   state.i = 0; renderQ(); show("s-quiz");
 };
@@ -83,7 +83,7 @@ videoInput.onchange = () => {
   const allowed = ["video/mp4", "video/webm", "video/quicktime"];
   const extensionOk = /\.(mp4|mov|webm)$/i.test(file.name);
   if ((!allowed.includes(file.type) && !extensionOk) || file.size > 100 * 1024 * 1024 || file.size === 0) {
-    $("video-err").textContent = "Choose a non-empty MP4, MOV or WEBM video up to 100 MB.";
+    $("video-err").textContent = (state.language === "hi" ? "100 MB तक की वैध MP4, MOV या WEBM वीडियो फ़ाइल चुनें।" : "Choose a non-empty MP4, MOV or WEBM video up to 100 MB.");
     clearVideo();
     $("continue-video").disabled = true;
     return;
@@ -106,11 +106,11 @@ $("video-consent").onchange = () => {
 };
 $("continue-video").onclick = () => {
   if (!videoInput.files || !videoInput.files[0]) {
-    $("video-err").textContent = "Please select a video before continuing.";
+    $("video-err").textContent = (state.language === "hi" ? "आगे बढ़ने से पहले वीडियो चुनें।" : "Please select a video before continuing.");
     return;
   }
   if (!$("video-consent").checked) {
-    $("video-err").textContent = "Please confirm guardian permission for this video.";
+    $("video-err").textContent = (state.language === "hi" ? "कृपया इस वीडियो के लिए अभिभावक की अनुमति की पुष्टि करें।" : "Please confirm guardian permission for this video.");
     return;
   }
   submit();
