@@ -137,14 +137,13 @@ function renderResult(res) {
   $("r-meter").style.width = "0";
   requestAnimationFrame(() => requestAnimationFrame(() => $("r-meter").style.width = pct + "%"));
 
-  $("r-domains").innerHTML = Object.entries(res.domain_scores).map(([d, v]) => `
-    <div class="dom"><div class="dom-head"><span>${d}</span><span>${Math.round(v * 100)}%</span></div>
+  const domainNames = state.language === "hi" ? {Social:"सामाजिक व्यवहार",Communication:"संचार",Behaviour:"व्यवहार"} : {};\n  $("r-domains").innerHTML = Object.entries(res.domain_scores).map(([d, v]) => `
+    <div class="dom"><div class="dom-head"><span>${domainNames[d] || d}</span><span>${Math.round(v * 100)}%</span></div>
     <div class="meter"><i style="width:${Math.round(v * 100)}%"></i></div></div>`).join("");
 
-  const next = ["Share this result with your child's doctor or a child-development specialist.",
-    "Note down examples of behaviours you've seen. Short videos can help the clinician."];
-  if (res.probability >= 0.35) next.push("Ask about a formal developmental assessment.");
-  if (res.probability >= 0.6)  next.push("Ask your NGO or local health centre about early-intervention programmes.");
+  const next = state.language === "hi" ? ["इस परिणाम को अपने बच्चे के डॉक्टर या बाल-विकास विशेषज्ञ के साथ साझा करें।","आपने जो व्यवहार देखे हैं, उनके उदाहरण लिखें। छोटे वीडियो चिकित्सक की मदद कर सकते हैं।"] : ["Share this result with your child's doctor or a child-development specialist.","Note down examples of behaviours you've seen. Short videos can help the clinician."];
+  if (res.probability >= 0.35) next.push(state.language === "hi" ? "औपचारिक विकासात्मक मूल्यांकन के बारे में पूछें।" : "Ask about a formal developmental assessment.");
+  if (res.probability >= 0.6)  next.push(state.language === "hi" ? "प्रारंभिक सहायता कार्यक्रमों के बारे में NGO या स्थानीय स्वास्थ्य केंद्र से पूछें।" : "Ask your NGO or local health centre about early-intervention programmes.");
   $("r-next").innerHTML = next.map(s => `<li>${s}</li>`).join("");
 
   $("r-source").textContent = res.source === "demo"
@@ -173,7 +172,7 @@ function applyLanguage(lang) {
   };
   set(".brand","ASD Screening Assistant","ASD स्क्रीनिंग सहायक");
   set(".tag","Prototype · not a diagnosis","प्रोटोटाइप · निदान नहीं");
-  set(".language-picker","Choose your language / अपनी भाषा चुनें","अपनी भाषा चुनें");
+  label(".language-picker","Choose your language / अपनी भाषा चुनें","अपनी भाषा चुनें");
   set("#s-home h1","A quick check on how your child communicates and plays","आपका बच्चा कैसे बातचीत करता है और खेलता है — एक संक्षिप्त जाँच");
   set("#s-home .lead","Answer 10 short questions about everyday behaviour. It takes about 5 minutes. This prototype provides screening support and does not diagnose autism.","रोज़मर्रा के व्यवहार के बारे में 10 छोटे सवालों के जवाब दें। इसमें लगभग 5 मिनट लगेंगे। यह प्रोटोटाइप स्क्रीनिंग में सहायता करता है, ऑटिज़्म का निदान नहीं करता।");
   const homeEn=["No names or photos are stored in this prototype.","The result is a screening signal, not a diagnosis.","Built with data gathered together with our NGO partner."];
