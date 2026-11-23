@@ -88,3 +88,8 @@ legend{font-weight:700;margin-bottom:8px}
 .btn:disabled{opacity:.55;cursor:not-allowed}
 .btn:disabled:hover{background:var(--primary);border-color:var(--primary)}
 input[type=text]{display:block;width:100%;margin-top:6px;font:inherit;padding:11px 12px;border:2px solid var(--line);border-radius:var(--r);background:var(--card);color:var(--ink)}
+
+
+/* Language selector */
+.language-picker{display:block;margin:0 0 24px;padding:14px 16px;border:1px solid var(--line);border-radius:var(--r);background:var(--card)}
+.language-picker select{margin-top:8px}
